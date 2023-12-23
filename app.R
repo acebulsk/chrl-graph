@@ -70,6 +70,7 @@ ui <- function(request) {
                               menuItem("Custom Graphs", tabName = "cstm_graph", icon = icon("fas fa-chart-line")),
                               menuItem("Annual Comparisons", tabName = "ann_compare", icon = icon("fas fa-chart-line")),
                               menuItem("Station Comparisons", tabName = "stn_compare", icon = icon("fas fa-chart-line")),
+                              menuItem("Monthly Normals", tabName = "monthly_normals", icon = icon("fas fa-chart-line")),
                               menuItem("Webcams", icon = icon("fas fa-camera"), href = "https://viu-hydromet-wx.ca/webcam-viewer/")
                   )
                 ),
@@ -219,6 +220,35 @@ ui <- function(request) {
                                      )
                               )
                             )
+                    ),
+                    tabItem("monthly_normals",
+                            fluidRow(
+                              column(12,
+                                     h1("Monthly Normals", align = "center")
+                              )
+                            ),
+                            fluidRow(
+                              column(2,
+                                     selectInput("monthly_site",
+                                                 label = "Choose a Weather Station:",
+                                                 choices = stnNameDict,
+                                                 selected = c('apelake'),
+                                                 multiple = F,
+                                                 selectize = T
+                                     ),
+                                     selectInput("plot_type", 
+                                                 label = "Select Plot Type: ",
+                                                 choices = c('Boxplot', 'Line Graph'),
+                                                 selected = c('Line Graph'),
+                                                 multiple = F,
+                                                 selectize = T)
+                              ),
+                              column(10,
+                                     htmlOutput('header4'),
+                                     plotOutput('plot', height = "40vh"),
+                                     tableOutput("table")
+                              )
+                            )
                     )
                   )
                   
@@ -263,6 +293,8 @@ server <- function(input, output, session) {
   source("classes/custom.r", local = TRUE)
   source("classes/annual.r", local = TRUE)
   source("classes/station_compare.r", local = TRUE)
+  source("classes/monthly_normals.r", local = TRUE)
+  
   
   
   # enable bookmarking on URL
