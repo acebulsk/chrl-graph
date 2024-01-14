@@ -236,6 +236,14 @@ ui <- function(request) {
                                                  multiple = F,
                                                  selectize = T
                                      ),
+                                     selectInput("monthly_var",
+                                                 label = "Select a Variable:",
+                                                 choices = c('Air_Temp', "Snow_Depth_qaqc"),
+                                                 selected = c('Air_Temp'),
+                                                 multiple = F,
+                                                 selectize = T
+                                     ),
+                                     selectInput("monthly_year", "Select Year to Compare: ", ""),
                                      selectInput("plot_type", 
                                                  label = "Select Plot Type: ",
                                                  choices = c('Boxplot', 'Line Graph'),
