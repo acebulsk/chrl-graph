@@ -32,7 +32,7 @@ finalData <- reactive({
 observe({
   req(input$monthly_site)
   # need to find the year range of selected sites. finds the max of the two start years as the min.
-  monthly_ummary <- finalData()
+  monthly_summary <- finalData()
   # glob_avg <- globAverage()
   min_year <- min(monthly_summary$year) |> as.numeric()
   max_year <- max(monthly_summary$year) |> as.numeric()
@@ -60,8 +60,9 @@ output$plot <- renderPlot({
   
   # glob_avg <- globAverage()
   
+  # browser()
   if(input$plot_type == 'Line Graph'){
-    ggplot(monthly_summary, aes(month_num, mean_monthly_temp))  +
+    ggplot(monthly_summary, aes(month_num, mean_monthly))  +
       geom_line(aes(
         colour = as.factor(year),
         group = as.factor(year),
@@ -76,7 +77,7 @@ output$plot <- renderPlot({
       theme(legend.position = 'bottom')
       
   } else {
-    ggplot(monthly_summary, aes(month_num, mean_monthly_temp)) + 
+    ggplot(monthly_summary, aes(month_num, mean_monthly)) + 
       geom_boxplot() +
       geom_point(data = subset(monthly_summary, year == select_year), 
                  aes(shape = "Select Year"), color = 'red', size = 3) +
@@ -91,37 +92,3 @@ output$plot <- renderPlot({
 
 }, res = 96)
 
-# plot for custom graphs page
-output$plot1 <- renderPlotly({
-  req(input$custom_site)
-  req(input$custom_year)
-  req(input$custom_var)
-  req(finalData())
-  
-  df <- finalData() %>%
-    select(DateTime, input$custom_var)
-  
-  varNames <- names(Filter(function(x) unlist(x) %in% input$custom_var, varsDict))
-  
-  if(length(input$custom_var) ==  2){
-    
-    weatherdash::graph_two(
-      data = df,
-      x = "DateTime",
-      y1 = 2,
-      y2 = 3, 
-      y1_name = varNames[1], 
-      y2_name = varNames[2]
-    )
-    
-  } else {
-    
-    weatherdash::graph_one(
-      data = df,
-      x = "DateTime",
-      y1 = 2,
-      y1_name = varNames[1]
-    )
-  }
-  
-})
