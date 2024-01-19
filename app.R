@@ -71,6 +71,7 @@ ui <- function(request) {
                               menuItem("Annual Comparisons", tabName = "ann_compare", icon = icon("fas fa-chart-line")),
                               menuItem("Station Comparisons", tabName = "stn_compare", icon = icon("fas fa-chart-line")),
                               menuItem("Monthly Normals", tabName = "monthly_normals", icon = icon("fas fa-chart-line")),
+                              menuItem("Hourly Statistics", tabName = "hourly_statistics", icon = icon("fas fa-chart-line")),
                               menuItem("Webcams", icon = icon("fas fa-camera"), href = "https://viu-hydromet-wx.ca/webcam-viewer/")
                   )
                 ),
@@ -257,7 +258,38 @@ ui <- function(request) {
                                      tableOutput("table")
                               )
                             )
+                    ),
+                    tabItem("hourly_statistics",
+                            fluidRow(
+                              column(12,
+                                     h1("Hourly Statistics", align = "center")
+                              )
+                            ),
+                            fluidRow(
+                              column(2,
+                                     selectInput("hourly_site",
+                                                 label = "Choose a Weather Station:",
+                                                 choices = stnNameDict,
+                                                 selected = c('apelake'),
+                                                 multiple = F,
+                                                 selectize = T
+                                     ),
+                                     selectInput("hourly_var",
+                                                 label = "Select a Variable:",
+                                                 choices = c('Air_Temp', "Snow_Depth_qaqc"),
+                                                 selected = c('Air_Temp'),
+                                                 multiple = F,
+                                                 selectize = T
+                                     ),
+                                     selectInput("hourly_year", "Select Year to Compare: ", "")
+                              ),
+                              column(10,
+                                     htmlOutput('header5'),
+                                     plotOutput('hourly_plot', height = "40vh")
+                              )
+                            )
                     )
+                    
                   )
                   
                 )
