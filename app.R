@@ -1,4 +1,5 @@
 library(dplyr)
+library(tidyr)
 library(DBI)
 library(plotly)
 library(lubridate)
@@ -244,7 +245,7 @@ ui <- function(request) {
                                                  multiple = F,
                                                  selectize = T
                                      ),
-                                     selectInput("monthly_year", "Select Year to Compare: ", ""),
+                                     selectInput("monthly_year", "Select Water Year to Compare: ", ""),
                                      selectInput("plot_type", 
                                                  label = "Select Plot Type: ",
                                                  choices = c('Boxplot', 'Line Graph'),
@@ -254,7 +255,7 @@ ui <- function(request) {
                               ),
                               column(10,
                                      htmlOutput('header4'),
-                                     plotOutput('plot', height = "40vh"),
+                                     plotlyOutput('plot', height = "40vh"),
                                      tableOutput("table")
                               )
                             )
@@ -281,11 +282,17 @@ ui <- function(request) {
                                                  multiple = F,
                                                  selectize = T
                                      ),
-                                     selectInput("hourly_year", "Select Year to Compare: ", "")
+                                     selectInput("hourly_year", "Select Year to Compare: ", ""),
+                                     checkboxGroupInput("hourly_stats_checkbox",
+                                                        "Display the historic hourly statistics:",
+                                                        choices = list("Max-Min Range",
+                                                                       "5-95 Percentile Range",
+                                                                       "Mean"),
+                                                        selected = list("5-95 Percentile Range"))
                               ),
                               column(10,
                                      htmlOutput('header5'),
-                                     plotOutput('hourly_plot', height = "40vh")
+                                     plotlyOutput('hourly_stats_plot', height = "40vh")
                               )
                             )
                     )
@@ -334,7 +341,7 @@ server <- function(input, output, session) {
   source("classes/annual.r", local = TRUE)
   source("classes/station_compare.r", local = TRUE)
   source("classes/monthly_normals.r", local = TRUE)
-  
+  source("classes/hourly_summary.R", local = TRUE)
   
   
   # enable bookmarking on URL
