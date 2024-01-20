@@ -55,6 +55,15 @@ varsDict <- list("DateTime" = "DateTime",
                  "Battery (V)" = "Batt"
 )
 
+monthlyVarsDict <- list(
+                 "Mean Monthly Air Temperature (\u00b0C)" = "Air_Temp",
+                 "Mean Monthly Snow Depth (cm)" =  "Snow_Depth_qaqc")
+
+hourlyVarsDict <- list(
+  "Hourly Air Temperature (\u00b0C)" = "Air_Temp",
+  "Hourly Snow Depth (cm)" =  "Snow_Depth_qaqc")
+
+
 # imgs should be saved under the www/ folder
 logoPics <- list(
   bcgov_logo = tags$a(href='https://www2.gov.bc.ca/gov/content/governments/organizational-structure/ministries-organizations/ministries/forests', tags$img(src="bcgov.png", height = "80", width = "180", hspace = "10", vspace = "10")),
