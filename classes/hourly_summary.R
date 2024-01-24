@@ -59,7 +59,7 @@ observe({
   min_year <- min(hourly_obs_df$wtr_year) |> as.numeric()
   max_year <- max(hourly_obs_df$wtr_year) |> as.numeric()
   year_range <- seq.int(min_year, max_year, by = 1)
-  updateSelectInput(session, "hourly_year", "Select Year to Compare: ", year_range, selected = max_year)
+  updateSelectInput(session, "hourly_year", "Select Water Year to Compare: ", year_range, selected = max_year)
 })
 
 output$hourly_stats_plot <- renderPlotly({

@@ -37,10 +37,10 @@ observe({
   min_year <- min(monthly_summary$wtr_year) |> as.numeric()
   max_year <- max(monthly_summary$wtr_year) |> as.numeric()
   year_range <- seq.int(min_year, max_year, by = 1)
-  updateSelectInput(session, "monthly_year", "Select Year to Compare: ", year_range, selected = max_year)
+  updateSelectInput(session, "monthly_year", "Select Water Year to Compare: ", year_range, selected = max_year)
 })
 
-output$plot <- renderPlotly({
+output$plot <- renderPlot({
   req(input$monthly_site)
   req(input$plot_type)
   req(input$monthly_year)
@@ -67,7 +67,7 @@ output$plot <- renderPlotly({
   
   # glob_avg <- globAverage()
   
-  # browser()
+  #browser()
   if(input$plot_type == 'Line Graph'){
     gg_out <- ggplot(monthly_summary, aes(month_name, mean_monthly))  +
       geom_line(aes(
@@ -94,7 +94,8 @@ output$plot <- renderPlotly({
       theme_bw(base_size = 14) +
       theme(legend.title = element_blank())
   }
-  plotly::ggplotly(gg_out)
+  
+  gg_out
 
 })
 

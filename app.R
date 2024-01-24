@@ -213,7 +213,7 @@ ui <- function(request) {
                                                  selectize = T
                                      ),
                                      uiOutput("varSelection_stn"),
-                                     selectInput("station_year", "Select Year to Compare: ", "")
+                                     selectInput("station_year", "Select Water Year to Compare: ", "")
                               ),
                               column(10,
                                      htmlOutput('header_compare_stn'),
@@ -255,7 +255,7 @@ ui <- function(request) {
                               ),
                               column(10,
                                      htmlOutput('header4'),
-                                     plotlyOutput('plot', height = "40vh"),
+                                     plotOutput('plot', height = "40vh"),
                                      tableOutput("table")
                               )
                             )
@@ -282,7 +282,7 @@ ui <- function(request) {
                                                  multiple = F,
                                                  selectize = T
                                      ),
-                                     selectInput("hourly_year", "Select Year to Compare: ", ""),
+                                     selectInput("hourly_year", "Select Water Year to Compare: ", ""),
                                      checkboxGroupInput("hourly_stats_checkbox",
                                                         "Display the historic hourly statistics:",
                                                         choices = list("Max-Min Range",
