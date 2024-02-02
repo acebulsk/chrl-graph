@@ -82,7 +82,7 @@ output$plot <- renderPlot({
       geom_errorbar(data = monthly_summary_select_year, aes(x = month_name, ymin = min_monthly, ymax = max_monthly, colour = as.factor(wtr_year)), width = 0.25)+
       scale_color_manual(name = 'Water Year', values = color_palette) +  # Assign colors based on the year
       labs(x = "Month", y = y_lab,
-           caption = paste0('Only includes months with > 90% of data. Dashed red line is the selected water year.')) +
+           caption = paste0('Only includes months with > 90% of data. Red error bars show the monthly min and max for the selected water year.')) +
       theme_bw(base_size = 14) +
       theme(legend.position = 'bottom')
       
