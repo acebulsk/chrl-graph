@@ -282,11 +282,11 @@ ui <- function(request) {
                                                  multiple = F,
                                                  selectize = T
                                      ),
-                                     selectInput("hourly_year", "Select Water Year to Compare: ", ""),
+                                     selectInput("hourly_year", "Select Water Year to Compare: ", "", multiple = T),
                                      checkboxGroupInput("hourly_stats_checkbox",
                                                         "Display the historic hourly statistics:",
-                                                        choices = list("Max-Min Range",
-                                                                       "5-95 Percentile Range",
+                                                        choices = list("Max-Min Range (blue shading)",
+                                                                       "5-95 Percentile \nRange (green shading)",
                                                                        "Mean"),
                                                         selected = list("5-95 Percentile Range"))
                               ),

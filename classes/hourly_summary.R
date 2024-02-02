@@ -69,29 +69,18 @@ output$hourly_stats_plot <- renderPlotly({
   
   select_year <- input$hourly_year
   hourly_stats_df <- hourlyStatsData()
-  hourly_obs_df <- hourlyObsData()
-  
-  min_year <- min(hourly_obs_df$wtr_year) |> as.numeric()
-  max_year <- max(hourly_obs_df$wtr_year) |> as.numeric()
-  year_range <- seq.int(min_year, max_year, by = 1)
+  hourly_obs_df <- hourlyObsData() |> 
+    filter(wtr_year %in% select_year)
   
   y_lab <- names(hourlyVarsDict)[hourlyVarsDict == input$hourly_var]
-  
-  color_palette <- c(viridisLite::viridis(n = (max_year-min_year)+1,
-                                          option = 'D'))
-  
-  col_index <- which(year_range == select_year)
-  
-  color_palette[col_index] <- 'red'
   
   gg_out <- ggplot(hourly_obs_df)  +
     geom_line(aes(
       plot_time, value,
       colour = as.factor(wtr_year),
       group = as.factor(wtr_year),
-    ),
-    alpha = ifelse(hourly_obs_df$wtr_year == select_year, 1, 0.4))+
-    scale_color_manual(name = 'Water Year', values = color_palette) +  # Assign colors based on the year
+    ))+
+    scale_color_viridis_d(name = 'Water Year') +  # Assign colors based on the year
     # scale_linetype_manual(name = 'Line Type', values = c("Mean" = "dashed", "Max" = "dashed", "Min" = "dashed")) +
     scale_x_datetime(labels = scales::date_format("%B")) +
     # scale_fill_manual(name = 'Fill', values = c('5th to 95th\npercentile' = 'grey')) +
@@ -101,7 +90,7 @@ output$hourly_stats_plot <- renderPlotly({
     
   
  # browser()
-  if("5-95 Percentile Range" %in% input$hourly_stats_checkbox){
+  if("5-95 Percentile \nRange (green shading)" %in% input$hourly_stats_checkbox){
     gg_out <- gg_out +
       geom_ribbon(
       data = hourly_stats_df,
@@ -119,7 +108,7 @@ output$hourly_stats_plot <- renderPlotly({
      # geom_line(data = hourly_stats_df, aes(x = plot_time, y = lower_quantile, group = 1, linetype = 'Lower Quantile'))
   }
 
-  if("Max-Min Range" %in% input$hourly_stats_checkbox){
+  if("Max-Min Range (blue shading)" %in% input$hourly_stats_checkbox){
     gg_out <- gg_out +
       geom_ribbon(
         data = hourly_stats_df,
@@ -130,7 +119,7 @@ output$hourly_stats_plot <- renderPlotly({
           fill = 'Max to Min Range'
         ),
         alpha = 0.2,
-        fill = 'lightblue',
+        fill = 'dodgerblue',
         colour = 'blue'
       ) #+
       # geom_line(data = hourly_stats_df, aes(x = plot_time, y = max, group = 1, linetype = 'Max')) +

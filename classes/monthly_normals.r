@@ -50,7 +50,9 @@ output$plot <- renderPlot({
   
   monthly_summary$month_name <- month.abb[as.numeric(monthly_summary$month_num)]
   monthly_summary$month_name <- ordered(monthly_summary$month_name, levels = c(month.abb[10:12], month.abb[1:9]))
-
+  
+  monthly_summary_select_year <- monthly_summary |> 
+    filter(wtr_year == select_year)
   
   min_year <- min(monthly_summary$wtr_year) |> as.numeric()
   max_year <- max(monthly_summary$wtr_year) |> as.numeric()
@@ -77,6 +79,7 @@ output$plot <- renderPlot({
       linetype = ifelse(monthly_summary$wtr_year == select_year, 'dashed', 'solid')
       ) +
       geom_point(aes(colour = as.factor(wtr_year)), size = 0.5)+
+      geom_errorbar(data = monthly_summary_select_year, aes(x = month_name, ymin = min_monthly, ymax = max_monthly, colour = as.factor(wtr_year)), width = 0.25)+
       scale_color_manual(name = 'Water Year', values = color_palette) +  # Assign colors based on the year
       labs(x = "Month", y = y_lab,
            caption = paste0('Only includes months with > 90% of data. Dashed red line is the selected water year.')) +
