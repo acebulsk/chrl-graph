@@ -97,6 +97,7 @@ ui <- function(request) {
                             )
                             
                     ),
+                    # weekly graph ----
                     tabItem("wkly_graph",
                             fluidRow(
                               column(12,
@@ -122,8 +123,6 @@ ui <- function(request) {
                                      
                                      
                               ),
-                              
-                              
                               column(width = 9,
                                      htmlOutput('header'),
                                      wellPanel(class ="line_graph_container",
@@ -138,6 +137,8 @@ ui <- function(request) {
                               )
                             )
                     ),
+                    # custom graph ----
+                    
                     tabItem("cstm_graph",
                             fluidRow(
                               column(12,
@@ -170,6 +171,8 @@ ui <- function(request) {
                               
                             )
                     ),
+                    # annual comparisons graph ----
+                    
                     tabItem("ann_compare",
                             fluidRow(
                               column(12,
@@ -197,6 +200,8 @@ ui <- function(request) {
                               )
                             )
                     ),
+                    # station comparisons ----
+                    
                     tabItem("stn_compare",
                             fluidRow(
                               column(12,
@@ -223,6 +228,8 @@ ui <- function(request) {
                               )
                             )
                     ),
+                    # monthly normals ----
+                    
                     tabItem("monthly_normals",
                             fluidRow(
                               column(12,
@@ -240,7 +247,7 @@ ui <- function(request) {
                                      ),
                                      selectInput("monthly_var",
                                                  label = "Select a Variable:",
-                                                 choices = c('Air_Temp', "Snow_Depth_qaqc"),
+                                                 choices = monthlyVarsDict,
                                                  selected = c('Air_Temp'),
                                                  multiple = F,
                                                  selectize = T
@@ -260,6 +267,8 @@ ui <- function(request) {
                               )
                             )
                     ),
+                    # hourly stats ----
+                    
                     tabItem("hourly_statistics",
                             fluidRow(
                               column(12,
@@ -277,7 +286,7 @@ ui <- function(request) {
                                      ),
                                      selectInput("hourly_var",
                                                  label = "Select a Variable:",
-                                                 choices = c('Air_Temp', "Snow_Depth_qaqc"),
+                                                 choices = hourlyVarsDict,
                                                  selected = c('Air_Temp'),
                                                  multiple = F,
                                                  selectize = T
