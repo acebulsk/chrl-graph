@@ -10,44 +10,56 @@ output$header5 <- renderUI({
 hourlyStatsData <- reactive({
   req(input$hourly_site)
   file_path <- paste0('data/hourly_stats/', input$hourly_site, '_hourly_stats.rds')
-  df <- readRDS(file_path) |> 
-    filter(name == input$hourly_var)
   
-  return(df)
-})
-
-hourlyStatsData <- reactive({
-  req(input$hourly_site)
-  file_path <- paste0('data/hourly_stats/', input$hourly_site, '_hourly_stats.rds')
-  df <- readRDS(file_path) |> 
+    validate(
+    need(file.exists(file_path),
+         'No data: Please select another station, data is not available for this station yet.')
+  )
+    hourly_stats <- readRDS(file_path) |> 
     filter(name == input$hourly_var)# |> 
-   # rename(Snow_Depth_qaqc = Snow_Depth_qaqc_filled)
+    
+    validate(
+      need(hourly_stats$name %in% input$hourly_var,
+           "No data: Please select another variable, this variable is not available for this station yet.")
+    )
   
-  df$plot_time <- if_else(month(df$plot_time) < 10,
-                          weatherdash::set_yr(df$plot_time, 1901),
-                          weatherdash::set_yr(df$plot_time, 1900))
+    hourly_stats$plot_time <- if_else(month(hourly_stats$plot_time) < 10,
+                          weatherdash::set_yr(hourly_stats$plot_time, 1901),
+                          weatherdash::set_yr(hourly_stats$plot_time, 1900))
   
-  return(df)
+  return(hourly_stats)
 })
 
 hourlyObsData <- reactive({
   req(input$hourly_site)
   
-  file_path <- paste0('data/gap-fill/gap_fill_', input$hourly_site, '.rds')
-  df <- readRDS(file_path) |> 
+  file_path <- paste0('data/qaqc_chrl_w_ac_pc/qaqc_', input$hourly_site, '.rds')
+  
+  validate(
+    need(file.exists(file_path),
+         'No data: Please select another station, data is not available for this station yet.')
+  )
+  
+  hourly_df <- readRDS(file_path) |> 
+    select(datetime, where(is.numeric)) |> 
     pivot_longer(!datetime) |> 
     filter(name == input$hourly_var)|> 
     mutate(year = format(datetime, '%Y'),
            wtr_year = weatherdash::wtr_yr(datetime))
   
-  df$plot_time <- format(df$datetime, "1900-%m-%d %H:%M:%S") # 81 so not a leap year
-  df$plot_time <- as.POSIXct(df$plot_time, format = "%Y-%m-%d %H:%M:%S", tz = 'UTC')
-  df$plot_time <- if_else(month(df$plot_time) < 10,
-                          weatherdash::set_yr(df$plot_time, 1901),
-                          weatherdash::set_yr(df$plot_time, 1900))
+  validate(
+    need(hourly_df$name %in% input$hourly_var,
+         "No data: Please select another variable, this variable is not available for this station yet.")
+  )
+  
+  hourly_df$plot_time <- format(hourly_df$datetime, "1900-%m-%d %H:%M:%S") # 81 so not a leap year
+  hourly_df$plot_time <- as.POSIXct(hourly_df$plot_time, format = "%Y-%m-%d %H:%M:%S", tz = 'UTC')
+  hourly_df$plot_time <- if_else(month(hourly_df$plot_time) < 10,
+                          weatherdash::set_yr(hourly_df$plot_time, 1901),
+                          weatherdash::set_yr(hourly_df$plot_time, 1900))
   
   
-  return(df)
+  return(hourly_df)
 })
 
 observe({
@@ -69,8 +81,20 @@ output$hourly_stats_plot <- renderPlotly({
   
   select_year <- input$hourly_year
   hourly_stats_df <- hourlyStatsData()
+  validate(
+    need(nrow(hourly_stats_df) > 0,
+         "No data: Please select another variable, this variable is not available for this station yet.")
+  )
+  
   hourly_obs_df <- hourlyObsData() |> 
     filter(wtr_year %in% select_year)
+  
+  validate(
+    need(nrow(hourly_obs_df) > 0,
+         "No data: Please select another variable, this variable is not available for this station yet."),
+    need(all(is.na(hourly_obs_df$value)) == F,
+         "No data: Please select another variable or try another year, this variable is not available for this station yet.")
+  )
   
   y_lab <- names(hourlyVarsDict)[hourlyVarsDict == input$hourly_var]
   
