@@ -40,8 +40,8 @@ varsDict <- list("DateTime" = "DateTime",
                  "Peak Wind Direction (deg)" = "Pk_Wind_Dir",
                  "Tipping Bucket Increment (mm)" = "PP_Tipper",
                  "Tipping Bucket Cumulative (mm)" = "PC_Tipper",
-                 "Precip Pipe Raw (mm)" = "PC_Raw_Pipe",
-                 "Precip Pipe Increment (mm)" = "PP_Pipe",
+                 "Stand Pipe Raw (mm)" = "PC_Raw_Pipe",
+                 "Stand Pipe Increment (mm)" = "PP_Pipe",
                  "Snow Depth (cm)" =  "Snow_Depth",
                  "Snow Water Equivalent (mm)" = "SWE",
                  "Solar Radiation (W/m2)" = "Solar_Rad",
@@ -56,13 +56,18 @@ varsDict <- list("DateTime" = "DateTime",
 )
 
 monthlyVarsDict <- list(
-                 "Mean Monthly Air Temperature (\u00b0C)" = "Air_Temp",
-                 "Mean Monthly Snow Depth (cm)" =  "Snow_Depth_qaqc")
+                 "Air Temperature (\u00b0C)" = "Air_Temp",
+                 "Snow Depth (cm)" =  "Snow_Depth",
+                 "Accumulated SWE (mm)" =  "SWE",
+                 "Accumulated Stand Pipe (mm)" =  "PC_accumulated_wtr_yr"
+                 )
 
 hourlyVarsDict <- list(
-  "Hourly Air Temperature (\u00b0C)" = "Air_Temp",
-  "Hourly Snow Depth (cm)" =  "Snow_Depth_qaqc")
-
+  "Air Temperature (\u00b0C)" = "Air_Temp",
+  "Snow Depth (cm)" =  "Snow_Depth",
+  "Accumulated SWE (mm)" =  "SWE",
+  "Accumulated Stand Pipe (mm)" =  "PC_accumulated_wtr_yr"
+  )
 
 # imgs should be saved under the www/ folder
 logoPics <- list(
