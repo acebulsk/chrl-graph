@@ -252,18 +252,23 @@ ui <- function(request) {
                                                  multiple = F,
                                                  selectize = T
                                      ),
-                                     selectInput("monthly_year", "Select Water Year to Compare: ", ""),
+                                     selectInput("monthly_year",
+                                                 "Select Water Year(s) to Compare: ",
+                                                 "",
+                                                 multiple = T),
                                      selectInput("plot_type", 
                                                  label = "Select Plot Type: ",
                                                  choices = c('Boxplot', 'Line Graph'),
                                                  selected = c('Line Graph'),
                                                  multiple = F,
-                                                 selectize = T)
+                                                 selectize = T),
+                                     # Conditional rendering of checkboxInput
+                                     uiOutput("filter_monthly_line_stats")
                               ),
                               column(10,
                                      htmlOutput('header4'),
                                      plotOutput('plot', height = "40vh"),
-                                     tableOutput("table")
+                                     uiOutput('text_boxplot_explain')
                               )
                             )
                     ),
