@@ -110,7 +110,8 @@ output$hourly_stats_plot <- renderPlotly({
     # scale_fill_manual(name = 'Fill', values = c('5th to 95th\npercentile' = 'grey')) +
     labs(y = y_lab, colour = 'Water Year') +
     theme_bw() +
-    theme(axis.title.x = element_blank())
+    theme(axis.title.x = element_blank(),
+          legend.position = 'bottom') #this doesnt appear to work
     
   
  # browser()

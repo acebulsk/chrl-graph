@@ -60,7 +60,7 @@ monthlyVarsDict <- list(
                  "Average Snow Depth (cm)" =  "Snow_Depth",
                  "Average SWE (mm)" =  "SWE",
                  "Average Accumulated Stand Pipe (mm)" =  "PC_accumulated_wtr_yr",
-                 "Total Monthly Stang Pipe (mm)" = 'PC_monthly_total'
+                 "Monthly Total Stand Pipe (mm)" = 'PC_monthly_total'
                  )
 
 hourlyVarsDict <- list(
