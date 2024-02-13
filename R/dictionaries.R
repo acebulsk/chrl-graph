@@ -56,10 +56,11 @@ varsDict <- list("DateTime" = "DateTime",
 )
 
 monthlyVarsDict <- list(
-                 "Air Temperature (\u00b0C)" = "Air_Temp",
-                 "Snow Depth (cm)" =  "Snow_Depth",
-                 "Accumulated SWE (mm)" =  "SWE",
-                 "Accumulated Stand Pipe (mm)" =  "PC_accumulated_wtr_yr"
+                 "Average Air Temperature (\u00b0C)" = "Air_Temp",
+                 "Average Snow Depth (cm)" =  "Snow_Depth",
+                 "Average SWE (mm)" =  "SWE",
+                 "Average Accumulated Stand Pipe (mm)" =  "PC_accumulated_wtr_yr",
+                 "Total Monthly Stang Pipe (mm)" = 'PC_monthly_total'
                  )
 
 hourlyVarsDict <- list(
@@ -68,6 +69,22 @@ hourlyVarsDict <- list(
   "Accumulated SWE (mm)" =  "SWE",
   "Accumulated Stand Pipe (mm)" =  "PC_accumulated_wtr_yr"
   )
+
+pretty_stats_var_names_monthly <- list(
+  "Air Temperature" = "Air_Temp",
+  "Snow Depth" =  "Snow_Depth",
+  "SWE" =  "SWE",
+  "Stand Pipe (monthly mean)" =  "PC_accumulated_wtr_yr",
+  "Stand Pipe (monthly total)" =  "PC_monthly_total"
+)
+
+pretty_stats_var_names_hourly <- list(
+  "Air Temperature" = "Air_Temp",
+  "Snow Depth" =  "Snow_Depth",
+  "SWE" =  "SWE",
+  "Stand Pipe (monthly mean)" =  "PC_accumulated_wtr_yr",
+  "Stand Pipe (monthly total)" =  "PC_monthly_total"
+)
 
 # imgs should be saved under the www/ folder
 logoPics <- list(

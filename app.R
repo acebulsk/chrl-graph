@@ -247,7 +247,7 @@ ui <- function(request) {
                                      ),
                                      selectInput("monthly_var",
                                                  label = "Select a Variable:",
-                                                 choices = monthlyVarsDict,
+                                                 choices = pretty_stats_var_names_monthly,
                                                  selected = c('Air_Temp'),
                                                  multiple = F,
                                                  selectize = T
@@ -258,7 +258,7 @@ ui <- function(request) {
                                                  multiple = T),
                                      selectInput("plot_type", 
                                                  label = "Select Plot Type: ",
-                                                 choices = c('Boxplot', 'Line Graph'),
+                                                 choices = c('Boxplot', 'Line Graph', 'Bar Chart'),
                                                  selected = c('Line Graph'),
                                                  multiple = F,
                                                  selectize = T),
@@ -291,7 +291,7 @@ ui <- function(request) {
                                      ),
                                      selectInput("hourly_var",
                                                  label = "Select a Variable:",
-                                                 choices = hourlyVarsDict,
+                                                 choices = pretty_stats_var_names_hourly,
                                                  selected = c('Air_Temp'),
                                                  multiple = F,
                                                  selectize = T

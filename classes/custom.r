@@ -77,28 +77,28 @@ output$slider <- renderUI({
 #filter preset data query
 customDataFilter <-  reactive({
   req(input$sliderTimeRange)
-  df <- custom_data_query()
-  df %>%  filter(DateTime >= input$sliderTimeRange[1] & DateTime <= input$sliderTimeRange[2])
+  custom_data <- custom_data_query()
+  custom_data %>%  dplyr::filter(DateTime >= input$sliderTimeRange[1] & DateTime <= input$sliderTimeRange[2])
 })
 
 # final data set
 
-finalData <- reactive({
+final_custom_data <- reactive({
   req(customDataFilter())
   req(input$custom_var)
 
-  df <- customDataFilter()
+  custom_data <- customDataFilter()
 
   if("Snow_Depth" %in% input$custom_var) {
     req(input$cleanSnowCstm)
     if(input$cleanSnowCstm == "yes"){
       flag  <- ("Snow_Depth" %in% input$custom_var)
       clean <- input$cleanSnow
-      df <- spike_clean(data = df, 'DateTime', 'Snow_Depth', spike_th = 10, roc_hi_th = 40, roc_low_th = 75)
+      custom_data <- spike_clean(data = custom_data, 'DateTime', 'Snow_Depth', spike_th = 10, roc_hi_th = 40, roc_low_th = 75)
     }
-    else{return(df)}
+    else{return(custom_data)}
   }
-  return(df)
+  return(custom_data)
 })
 
 
@@ -107,9 +107,9 @@ output$plot1 <- renderPlotly({
   req(input$custom_site)
   req(input$custom_year)
   req(input$custom_var)
-  req(finalData())
-
-  df <- finalData() %>%
+  req(final_custom_data())
+  
+  custom_data <- final_custom_data() %>%
     select(DateTime, input$custom_var)
 
   varNames <- names(Filter(function(x) unlist(x) %in% input$custom_var, varsDict))
@@ -117,7 +117,7 @@ output$plot1 <- renderPlotly({
   if(length(input$custom_var) ==  2){
     
     weatherdash::graph_two(
-      data = df,
+      data = custom_data,
       x = "DateTime",
       y1 = 2,
       y2 = 3, 
@@ -128,7 +128,7 @@ output$plot1 <- renderPlotly({
   } else {
     
     weatherdash::graph_one(
-      data = df,
+      data = custom_data,
       x = "DateTime",
       y1 = 2,
       y1_name = varNames[1]
