@@ -75,28 +75,35 @@ output$plot <- renderPlot({
 
     monthly_summary <- monthly_avg_df()  |> 
       select(line_group = WtrYr, month_name, value = mean_monthly) |> 
-      filter(line_group %in% select_year)
-    
+      filter(line_group %in% select_year) |> 
+      mutate(line_group = ordered(line_group, levels = c(select_year)))
+
     yearly_summary <- yearlyData() |> 
-      pivot_longer(c(Max:Min), names_to = 'line_group') |> 
-      select(line_group, month_name, value)
+      pivot_longer(c(Mean:Min), names_to = 'stat_name') |> 
+      select(stat_name, month_name, stat_value = value) 
     
     if(input$filter_month_stats){
-      month_line_df <- rbind(monthly_summary, yearly_summary) |> 
-        mutate(line_group = ordered(line_group, levels = c('Min', select_year, 'Max')))
+      mon_stat_df <- left_join(yearly_summary, monthly_summary, by = 'month_name')
+      gg_out <- ggplot(mon_stat_df)  +
+        geom_line(aes(month_name, value, colour = line_group, group = line_group)) +
+        geom_point(aes(month_name, value, colour = line_group, group = line_group), size = 1) +
+        geom_line(aes(x = month_name, y = stat_value, linetype = stat_name, group = stat_name), alpha = 0.8) +
+        scale_linetype_manual(values = c('dashed', 'longdash', 'dashed'), name = '') +
+        scale_color_viridis_d(name = '') +  # Assign colors based on the year
+        labs(x = "Month", y = y_lab,
+             caption = paste0('Mean monthly values for water years: ', min_year, ' to ', max_year-1, '.\n Only includes months with > 90% of data.')) +
+        theme_bw(base_size = 14) +
+        theme(legend.position = 'bottom')
     } else {
-      month_line_df <- monthly_summary |> 
-        mutate(line_group = as.factor(line_group))
+      gg_out <- ggplot(monthly_summary, aes(month_name, value, colour = line_group, group = line_group))  +
+        geom_line() +
+        geom_point(size = 0.5)+
+        scale_color_viridis_d(name = '') +  # Assign colors based on the year
+        labs(x = "Month", y = y_lab,
+             caption = paste0('Mean monthly values for water years: ', min_year, ' to ', max_year-1, '.\n Only includes months with > 90% of data.')) +
+        theme_bw(base_size = 14) +
+        theme(legend.position = 'bottom')
     }
-
-    gg_out <- ggplot(month_line_df, aes(month_name, value, colour = line_group, group = line_group))  +
-      geom_line() +
-      geom_point(size = 0.5)+
-      scale_color_viridis_d(name = '') +  # Assign colors based on the year
-      labs(x = "Month", y = y_lab,
-           caption = paste0('Mean monthly values for water years: ', min_year, ' to ', max_year-1, '.\n Only includes months with > 90% of data.')) +
-      theme_bw(base_size = 14) +
-      theme(legend.position = 'bottom')
       
   } else if(input$plot_type == 'Boxplot'){
     
@@ -122,17 +129,16 @@ output$plot <- renderPlot({
       filter(line_group %in% select_year)
     
     yearly_summary <- yearlyData() |> 
-      pivot_longer(c(Max:Min), names_to = 'line_group') |> 
+      pivot_longer(c(Mean:Min), names_to = 'line_group') |> 
       select(line_group, month_name, value)
     
     if(input$filter_month_stats){
       month_line_df <- rbind(monthly_summary, yearly_summary) |> 
-        mutate(line_group = ordered(line_group, levels = c('Min', select_year, 'Max')))
+        mutate(line_group = ordered(line_group, levels = c('Min', 'Mean', select_year, 'Max')))
     } else {
       month_line_df <- monthly_summary |> 
         mutate(line_group = as.factor(line_group))
     }
-    
     gg_out <- ggplot(month_line_df, aes(x = month_name, y = value, fill = line_group))  +
       geom_bar(stat = "identity", position = "dodge") +
       scale_fill_viridis_d(name = '') +  # Assign colors based on the year
@@ -144,6 +150,37 @@ output$plot <- renderPlot({
   
   gg_out
 
+})
+
+output$monthly_stats_text <- renderDataTable({
+  monthly_summary <- monthly_avg_df()  |>
+    select(water_year = WtrYr,
+           Month = month_name,
+           mean_month_sel_yr = mean_monthly,) |>
+    filter(water_year %in% input$monthly_year)
+
+  yearly_summary <- yearlyData() |>
+    select(Month = month_name, 
+           mean_month_all_yrs = Mean,
+           Min_yr,
+           Max_yr)
+
+  tbl_out <-
+    left_join(yearly_summary, monthly_summary, by = 'Month') |> 
+    mutate(percent_of_normal = (mean_month_sel_yr/mean_month_all_yrs)*100) |> 
+    select(
+      `Water Year` = water_year,
+      Month,
+      `Monthly Mean of Select Year` = mean_month_sel_yr,
+      `Monthly Mean of All Years` = mean_month_all_yrs,
+      `% of Normal` = percent_of_normal,
+      `Year of Min` = Min_yr,
+      `Year of Max` = Max_yr
+    ) |> 
+    arrange(`Water Year`,
+            Month)
+  
+  tbl_out
 })
 
 # Render text output
@@ -169,7 +206,7 @@ output$filter_monthly_line_stats <- renderUI({
   req(input$plot_type)
   
   if (input$plot_type != "Boxplot") {
-    checkboxInput("filter_month_stats", "Show Max and Min Stats", value = T)
+    checkboxInput("filter_month_stats", "Show Min, Mean and Max Stats", value = T)
   } else {
     NULL
   }
