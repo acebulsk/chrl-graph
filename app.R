@@ -268,7 +268,9 @@ ui <- function(request) {
                               column(10,
                                      htmlOutput('header4'),
                                      plotOutput('plot', height = "40vh"),
-                                     uiOutput('text_boxplot_explain')
+                                     uiOutput('text_boxplot_explain'),
+                                     h3("Monthly Stats Table", align = "left"),
+                                     dataTableOutput('monthly_stats_text')
                               )
                             )
                     ),
