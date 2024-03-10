@@ -30,11 +30,27 @@ annual_data_query <- reactive({
 
   req(input$annual_site)
   req(input$compare_var)
+  req(input$annual_data_type)
 
   withProgress(message = 'Requesting Data... ', value = 1, {
       conn <- do.call(DBI::dbConnect, args)
       on.exit(DBI::dbDisconnect(conn))
-      query <- paste0("SELECT DateTime, WatYr,", input$compare_var, " FROM clean_", input$annual_site,";")
+      
+      if(input$annual_data_type == 'Raw'){
+        query <-
+          paste0("SELECT DateTime, WatYr,",
+                 input$compare_var,
+                 " FROM clean_",
+                 input$annual_site,
+                 ";")
+      } else {
+        query <-
+          paste0("SELECT DateTime, WatYr,",
+                 input$compare_var,
+                 " FROM qaqc_",
+                 input$annual_site,
+                 ";")
+      }
       data <- dbGetQuery(conn, query) %>%
         mutate(
           plotTime = if_else(month(DateTime) < 10,
@@ -42,6 +58,7 @@ annual_data_query <- reactive({
                              weatherdash::set_yr(DateTime, 1900))) %>%
           filter(WatYr > 0,
                   WatYr %in% input$compare_year)
+
   })
 
 })

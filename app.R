@@ -11,11 +11,13 @@ library(dashboardthemes)
 library(weatherdash)
 library(fontawesome) #devtools::install_github("rstudio/fontawesome")
 
-Sys.setenv(TZ = 'UTC')
+# two colours
+two_cols <- c(
+  rgb(204/255,51/255,17/255),
+  rgb(0,119/255,187/255)
+)
 
-# set colorblind safe color pallet 
-# http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
-
+# colour blind safe pallet
 cbs_pal <-
   c(
     "#000000",
@@ -24,6 +26,44 @@ cbs_pal <-
     "#F0E442",
     "#CC79A7",
     "#56B4E9"
+  )
+
+Sys.setenv(TZ = 'UTC')
+
+# set colorblind safe color pallet 
+# http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+
+clean_qaqc_overlap_seconds <- 7 * 24 * 60 * 60 # get one week of overlap with qaqc data
+clean_data_name_display <- 'raw' # display name for the charts for the clean_ tables
+qaqc_data_name_display <- 'qaqc' # display name for the charts for the clean_ tables
+
+# QC vars 
+qaqc_vars <-
+  c(
+    "DateTime",
+    "WatYr",
+    "Air_Temp",
+    "RH",
+    "BP",
+    "Wind_Speed",
+    "Wind_Dir",
+    "Pk_Wind_Speed",
+    "Pk_Wind_Dir",
+    "PC_Tipper",
+    "PP_Tipper",
+    "PC_Raw_Pipe",
+    "PP_Pipe",
+    "Snow_Depth",
+    "SWE",
+    "Solar_Rad",
+    "SWU",
+    "SWL",
+    "LWU",
+    "LWL",
+    "Lysimeter",
+    "Soil_Moisture",
+    "Soil_Temperature",
+    "Batt"
   )
 
 # grab login creds
@@ -163,13 +203,19 @@ ui <- function(request) {
                                                  
                                      ),
                                      selectInput("custom_year", "Select Water Year", "",  selectize = F),
+                                     checkboxInput("plot_all_raw", "Plot all Raw Data?", FALSE),
                                      uiOutput("varSelection"),
-                                     uiOutput("cleanSnowButton")
+                                     uiOutput("cleanSnowButton"),
+                                     numericInput(
+                                       inputId = 'fig_height',
+                                       label = 'Figure Height in Pixels:',
+                                       value = 300
+                                     )
                               ),
                               column(10,
                                      htmlOutput('header2'),
                                      wellPanel(
-                                       plotlyOutput("plot1", height = "40vh"),
+                                       uiOutput("plot1_ui"),
                                        chooseSliderSkin('Flat',color = "#99ccff"),
                                        div(style = "margin-top:-3.5em; margin-bottom: -2em",
                                            fluidRow(uiOutput("slider"), align = 'center'))
@@ -195,6 +241,13 @@ ui <- function(request) {
                                                  selected = cur_stn,
                                                  multiple = F,
                                                  selectize = F
+                                     ),
+                                     selectInput("annual_data_type",
+                                                 label = "Data Type:",
+                                                 choices = c('QAQC', 'Raw'),
+                                                 selected = 'QAQC',
+                                                 selectize = F, 
+                                                 multiple = F
                                      ),
                                      uiOutput("varSelection_ann"),
                                      selectInput("compare_year", "Select Years to Compare: ", "", multiple = T)
@@ -224,6 +277,13 @@ ui <- function(request) {
                                                  selected = c('homathko', 'klinaklini'),
                                                  multiple = T,
                                                  selectize = T
+                                     ),
+                                     selectInput("station_data_type",
+                                                 label = "Data Type:",
+                                                 choices = c('QAQC', 'Raw'),
+                                                 selected = 'QAQC',
+                                                 selectize = F, 
+                                                 multiple = F
                                      ),
                                      uiOutput("varSelection_stn"),
                                      selectInput("station_year", "Select Water Year to Compare: ", "")

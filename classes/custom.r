@@ -8,20 +8,7 @@ output$header2 <- renderUI({
   }
   else{HTML(paste(str1))}
 })
-
-
-
-# pull data from mysql db based on user station and year input
-custom_data_query <- reactive({
-  req(input$custom_site)
-  req(input$custom_year)
-
-  conn <- do.call(DBI::dbConnect, args)
-  on.exit(DBI::dbDisconnect(conn))
-  query <- paste0("SELECT * FROM clean_", input$custom_site,  " where WatYr = ", input$custom_year, ";")
-  data <- dbGetQuery(conn, query)
-
-})
+# construct variables based on user selection for the database query ----
 
 # reactive element to create year list based on available years for chosen station
 observe({
@@ -37,10 +24,93 @@ observe({
 output$varSelection <- renderUI({
   # get colnames from reactive dataset
   stnVars <- unname(unlist(station_meta[[input$custom_site]][6]))
-
+  
   var_subset <- Filter(function(x) any(stnVars %in% x), varsDict)
+  
+  checkboxGroupInput(
+    inputId = "custom_var",
+    label = "Select Variables:",
+    choices = var_subset,
+    inline = FALSE,
+    selected = c("Air_Temp", "RH")
+  )
+})
 
-  checkboxGroupInput(inputId = "custom_var", label = "Select one or two variables:", choices = var_subset, inline = FALSE, selected = "Air_Temp")
+# get data from VIU Galiano database ----
+
+# pull QAQC data from mysql db based on user station and year input
+custom_qc_data_query <- reactive({
+  req(input$custom_site)
+  req(input$custom_year)
+  
+  conn <- do.call(DBI::dbConnect, args)
+  on.exit(DBI::dbDisconnect(conn))
+  query <-
+    paste0("SELECT ", paste(qaqc_vars, collapse = ", "), " FROM qaqc_",
+           input$custom_site,
+           " where WatYr = ",
+           input$custom_year,
+           ";")
+
+  data <- dbGetQuery(conn, query)
+  
+  validate(
+    need(nrow(data) > 0,
+         'No QAQC data: Please select try another year, data is not available for this year and station yet.')
+  )
+  data$qc_level <- qaqc_data_name_display
+  
+  return(data)
+})
+
+# pull QAQC data from mysql db based on user station and year input
+qc_max_datetime <- reactive({
+  req(custom_qc_data_query())
+  max_dt <- max(custom_qc_data_query()$DateTime)
+
+  return(max_dt)
+})
+
+# pull in CLEAN rawish data from mysql db based on user station and year input
+custom_clean_data_query <- reactive({
+  req(custom_qc_data_query())
+  req(qc_max_datetime())
+  req(input$custom_site)
+  req(input$custom_year)
+  
+  clean_query_start <- qc_max_datetime() - clean_qaqc_overlap_seconds
+
+  conn <- do.call(DBI::dbConnect, args)
+  on.exit(DBI::dbDisconnect(conn))
+  
+  if(input$plot_all_raw){
+    query <-
+      paste0("SELECT * FROM clean_",
+             input$custom_site,
+             " where WatYr = ",
+             input$custom_year,
+             ";")
+  } else {
+    query <-
+      paste0("SELECT * FROM clean_",
+             input$custom_site,
+             " where WatYr = ",
+             input$custom_year,
+             " AND DateTime >= '",
+             clean_query_start,
+             "';")
+  }
+
+  data <- dbGetQuery(conn, query)
+
+  validate(
+    need(nrow(data) > 0,
+         'No Raw data: Please select try another year, data is not available for this year and station yet.')
+  )
+  data$qc_level <- clean_data_name_display
+  
+  return(data)
+
 })
 
 output$cleanSnowButton <- renderUI({
@@ -55,20 +125,15 @@ output$cleanSnowButton <- renderUI({
 
 })
 
-# ensure only two variables are selected
-observe({
-  if(length(input$custom_var) > 2){
-    updateCheckboxGroupInput(session, "custom_var", selected = tail(input$custom_var, 2))
-  }
-})
-
 output$slider <- renderUI({
-  req(custom_data_query())
+  req(custom_qc_data_query())
+  req(custom_clean_data_query())
+  
   sliderInput(inputId = "sliderTimeRange", label = "",
-              min = min(custom_data_query()$DateTime),
-              max = max(custom_data_query()$DateTime),
-              value = c(min(custom_data_query()$DateTime),
-                        max(custom_data_query()$DateTime)),
+              min = min(custom_qc_data_query()$DateTime),
+              max = max(custom_clean_data_query()$DateTime),
+              value = c(min(custom_qc_data_query()$DateTime),
+                        max(custom_clean_data_query()$DateTime)),
               step = 3600,
               width = '85%',
               height )
@@ -77,8 +142,14 @@ output$slider <- renderUI({
 #filter preset data query
 customDataFilter <-  reactive({
   req(input$sliderTimeRange)
-  custom_data <- custom_data_query()
-  custom_data %>%  dplyr::filter(DateTime >= input$sliderTimeRange[1] & DateTime <= input$sliderTimeRange[2])
+  qc_raw_data <- rbind(custom_clean_data_query(), custom_qc_data_query())
+  qc_raw_data$qc_level <-
+    ordered(qc_raw_data$qc_level,
+            c(clean_data_name_display, qaqc_data_name_display))
+  
+  qc_raw_data_out <- qc_raw_data %>%  dplyr::filter(DateTime >= input$sliderTimeRange[1] &
+                                   DateTime <= input$sliderTimeRange[2])
+  return(qc_raw_data_out)
 })
 
 # final data set
@@ -108,33 +179,34 @@ output$plot1 <- renderPlotly({
   req(input$custom_year)
   req(input$custom_var)
   req(final_custom_data())
+  req(custom_clean_data_query())
+  req(custom_qc_data_query())
   
   custom_data <- final_custom_data() %>%
-    select(DateTime, input$custom_var)
+    select(DateTime, input$custom_var, qc_level) |> 
+    pivot_longer(input$custom_var) |> 
+    mutate(ylab = purrr::map_chr(name, function(short_name)
+      names(varsDict)[which(unlist(varsDict) == short_name)]))
+  
+  ggplot(custom_data, aes(DateTime, value, colour = qc_level)) +
+    geom_line() +
+    facet_grid(rows = vars(ylab), switch = "y", scales = 'free_y') +
+    ylab(element_blank())  +
+    xlab(element_blank())  +
+    scale_color_manual(values = two_cols) +
+    labs(color = "Data Type") +
+    theme_bw() #+
+    # theme(strip.placement = "outside",
+    #       strip.background = element_rect(fill="white", colour = "white"))
+  plotly::ggplotly() |> 
+    layout(plot_bgcolor = "#f5f5f5", paper_bgcolor = "#f5f5f5",
+           margin = list(b = 0, r = 50, 
+                         l = 50, t = 10))
 
-  varNames <- names(Filter(function(x) unlist(x) %in% input$custom_var, varsDict))
+})
 
-  if(length(input$custom_var) ==  2){
-    
-    weatherdash::graph_two(
-      data = custom_data,
-      x = "DateTime",
-      y1 = 2,
-      y2 = 3, 
-      y1_name = varNames[1], 
-      y2_name = varNames[2]
-    )
-
-  } else {
-    
-    weatherdash::graph_one(
-      data = custom_data,
-      x = "DateTime",
-      y1 = 2,
-      y1_name = varNames[1]
-    )
-  }
-
+output$plot1_ui <- renderUI({
+  plotlyOutput('plot1', height = length(input$custom_var)*input$fig_height)
 })
 
 #### render partner logo ui ####
