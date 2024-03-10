@@ -1,13 +1,25 @@
 #### Station Map Tab ####
 
+
+
 #render leaflet
 output$map <- renderLeaflet({
   leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
-    addProviderTiles("CartoDB.Positron") %>%
-    # addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
-    # addLayersControl(baseGroups = c("Default", "Satellite"), options = layersControlOptions(collapsed = FALSE), position = ("topleft")) %>%
+    addProviderTiles("CartoDB.Positron", group = "Default") %>%
+    addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
+    addLayersControl(baseGroups = c("Default", "Satellite"),
+                     options = layersControlOptions(collapsed = FALSE),
+                     position = ("topright")) %>%
     setView(lng = -128, lat = 53.75, zoom = 5) %>%
-    addMarkers(data = stnCoords, layerId = ~Name, ~Longitude, ~Latitude, label = ~htmltools::htmlEscape(stnCoords$Label[stnCoords$Name == Name]), labelOptions = labelOptions(textsize = "12px"))
+    addAwesomeMarkers(
+      data = stnCoords,
+      layerId = ~ Name,
+      icon = ~ icoLst[Telemetry],
+      lng = ~Longitude,
+      lat = ~Latitude,
+      label = ~ htmltools::htmlEscape(stnCoords$Label[stnCoords$Name == Name]),
+      labelOptions = labelOptions(textsize = "12px")
+    )
 })
 
 # get last hour from user selected station
