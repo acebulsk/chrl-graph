@@ -8,36 +8,40 @@ output$header5 <- renderUI({
 # final data set
 
 hourlyStatsData <- reactive({
+  if(input$smenu == "hourly_statistics"){
   req(input$hourly_site)
   file_path <- paste0('data/hourly_stats/', input$hourly_site, '_hourly_stats.rds')
-  
+
     validate(
     need(file.exists(file_path),
-         'No data: Please select another station, data is not available for this station yet.')
+         'No stats data: Please select another station, data is not available for this station yet.')
   )
     hourly_stats <- readRDS(file_path) |> 
     filter(name == input$hourly_var)# |> 
-    
+
     validate(
       need(hourly_stats$name %in% input$hourly_var,
-           "No data: Please select another variable, this variable is not available for this station yet.")
+           "No stats data: Please select another variable, this variable is not available for this station yet.")
     )
-  
+
     hourly_stats$plot_time <- if_else(month(hourly_stats$plot_time) < 10,
                           weatherdash::set_yr(hourly_stats$plot_time, 1901),
                           weatherdash::set_yr(hourly_stats$plot_time, 1900))
   
   return(hourly_stats)
+  }
 })
 
 hourlyObsData <- reactive({
+  if(input$smenu == "hourly_statistics"){
+    
   req(input$hourly_site)
   
   file_path <- paste0('data/qaqc_chrl_w_ac_pc/qaqc_', input$hourly_site, '.rds')
   
   validate(
     need(file.exists(file_path),
-         'No data: Please select another station, data is not available for this station yet.')
+         'No hourly data: Please select another station, data is not available for this station yet.')
   )
   
   hourly_df <- readRDS(file_path) |> 
@@ -48,8 +52,8 @@ hourlyObsData <- reactive({
            wtr_year = weatherdash::wtr_yr(datetime))
   
   validate(
-    need(hourly_df$name %in% input$hourly_var,
-         "No data: Please select another variable, this variable is not available for this station yet.")
+    need(all(hourly_df$name %in% input$hourly_var),
+         "No hourly data: Please select another variable, this variable is not available for this station yet.")
   )
   
   hourly_df$plot_time <- format(hourly_df$datetime, "1900-%m-%d %H:%M:%S") # 81 so not a leap year
@@ -60,9 +64,12 @@ hourlyObsData <- reactive({
   
   
   return(hourly_df)
+  }
 })
 
 observe({
+  if(input$smenu == "hourly_statistics"){
+    
   req(input$hourly_site)
   # need to find the year range of selected sites. finds the max of the two start years as the min.
   hourly_obs_df <- hourlyObsData()
@@ -72,11 +79,11 @@ observe({
   max_year <- max(hourly_obs_df$wtr_year) |> as.numeric()
   year_range <- seq.int(min_year, max_year, by = 1)
   updateSelectInput(session, "hourly_year", "Select Water Year to Compare: ", year_range, selected = max_year)
-})
+}
+  })
 
 output$hourly_stats_plot <- renderPlotly({
   req(input$hourly_site)
-  req(input$plot_type)
   req(input$hourly_year)
   
   select_year <- input$hourly_year

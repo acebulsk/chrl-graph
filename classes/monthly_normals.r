@@ -8,6 +8,8 @@ output$header4 <- renderUI({
 
 # monthly average values for each year
 monthly_avg_df <- reactive({
+  if(input$smenu == "monthly_normals"){
+    
   req(input$monthly_site)
   file_path <- paste0('data/monthly_normals_plot_data/', input$monthly_site, '_monthly_normals_data.rds')
   
@@ -24,10 +26,13 @@ monthly_avg_df <- reactive({
        "No data: Please select another variable, this variable is not available for this station yet.")
   )
   return(monthly_stats_df)
+  }
 })
 
 # stats of monthly average values over all years  
 yearlyData <- reactive({
+  if(input$smenu == "monthly_normals"){
+    
   req(input$monthly_site)
   file_path <- paste0('data/yearly_mean_monthly_summary/', input$monthly_site, '_yearly_mean_monthly_summary.rds')
   validate(
@@ -42,9 +47,12 @@ yearlyData <- reactive({
          "No data: Please select another variable, this variable is not available for this station yet.")
   )
   return(yearly_stats_df)
+  }
 })
 
 observe({
+  if(input$smenu == "monthly_normals"){
+    
   req(input$monthly_site)
   # need to find the year range of selected sites. finds the max of the two start years as the min.
   monthly_summary <- monthly_avg_df()
@@ -53,7 +61,8 @@ observe({
   max_year <- max(monthly_summary$WtrYr) |> as.numeric()
   year_range <- seq.int(min_year, max_year, by = 1)
   updateSelectInput(session, "monthly_year", "Select Water Year to Compare: ", year_range, selected = max_year)
-})
+}
+  })
 
 output$plot <- renderPlot({
   req(input$monthly_site)
