@@ -14,14 +14,14 @@ hourlyStatsData <- reactive({
 
     validate(
     need(file.exists(file_path),
-         'No stats data: Please select another station, data is not available for this station yet.')
+         'No statistics data: Please select another variable, statistics for this variable are not available for this station yet.')
   )
     hourly_stats <- readRDS(file_path) |> 
     filter(name == input$hourly_var)# |> 
 
     validate(
       need(hourly_stats$name %in% input$hourly_var,
-           "No stats data: Please select another variable, this variable is not available for this station yet.")
+           "No statistics data: Please select another variable, statistics for this variable are not available for this station yet.")
     )
 
     hourly_stats$plot_time <- if_else(month(hourly_stats$plot_time) < 10,
@@ -41,7 +41,7 @@ hourlyObsData <- reactive({
   
   validate(
     need(file.exists(file_path),
-         'No hourly data: Please select another station, data is not available for this station yet.')
+         'No statistics data: Please select another variable, statistics for this variable are not available for this station yet.')
   )
   
   hourly_df <- readRDS(file_path) |> 
@@ -53,7 +53,7 @@ hourlyObsData <- reactive({
   
   validate(
     need(all(hourly_df$name %in% input$hourly_var),
-         "No hourly data: Please select another variable, this variable is not available for this station yet.")
+         "No statistics data: Please select another variable, statistics for this variable are not available for this station yet.")
   )
   
   hourly_df$plot_time <- format(hourly_df$datetime, "1900-%m-%d %H:%M:%S") # 81 so not a leap year
@@ -74,11 +74,14 @@ observe({
   # need to find the year range of selected sites. finds the max of the two start years as the min.
   hourly_obs_df <- hourlyObsData()
   # glob_avg <- globAverage()
-
-  min_year <- min(hourly_obs_df$wtr_year) |> as.numeric()
-  max_year <- max(hourly_obs_df$wtr_year) |> as.numeric()
-  year_range <- seq.int(min_year, max_year, by = 1)
-  updateSelectInput(session, "hourly_year", "Select Water Year to Compare: ", year_range, selected = max_year)
+  
+  year_range <- hourly_obs_df$wtr_year |>
+    unique()
+  validate(
+    need(length(year_range) > 0,
+         "No statistics data: Please select another variable, statistics for this variable are not available for this station yet.")
+  )
+  updateSelectInput(session, "hourly_year", "Select Water Year to Compare: ", year_range, selected = max(year_range))
 }
   })
 
@@ -90,7 +93,7 @@ output$hourly_stats_plot <- renderPlotly({
   hourly_stats_df <- hourlyStatsData()
   validate(
     need(nrow(hourly_stats_df) > 0,
-         "No data: Please select another variable, this variable is not available for this station yet.")
+         "No statistics data: Please select another variable, statistics for this variable are not available for this station yet.")
   )
   
   hourly_obs_df <- hourlyObsData() |> 
@@ -98,9 +101,9 @@ output$hourly_stats_plot <- renderPlotly({
   
   validate(
     need(nrow(hourly_obs_df) > 0,
-         "No data: Please select another variable, this variable is not available for this station yet."),
+         "No statistics data: Please select another variable, statistics for this variable are not available for this station yet."),
     need(all(is.na(hourly_obs_df$value)) == F,
-         "No data: Please select another variable or try another year, this variable is not available for this station yet.")
+         "No statistics data: Please select another variable, statistics for this variable are not available for this station yet.")
   )
   
   y_lab <- names(hourlyVarsDict)[hourlyVarsDict == input$hourly_var]

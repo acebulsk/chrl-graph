@@ -52,39 +52,34 @@ varsDict <- list("DateTime" = "DateTime",
                  "Lysimeter (mm)" = "Lysimeter",
                  "Soil Moisture (%)" = "Soil_Moisture",
                  "Soil Temperature (\u00b0C)" = "Soil_Temperature",
-                 "Battery (V)" = "Batt"
-)
+                 "Battery (V)" = "Batt")
 
 monthlyVarsDict <- list(
                  "Average Air Temperature (\u00b0C)" = "Air_Temp",
                  "Average Snow Depth (cm)" =  "Snow_Depth",
                  "Average SWE (mm)" =  "SWE",
-                 "Average Accumulated Stand Pipe (mm)" =  "PC_accumulated_wtr_yr",
-                 "Monthly Total Stand Pipe (mm)" = 'PC_monthly_total'
+                 "Monthly Mean Accumulated Precip. (mm)" =  "PC_accumulated_wtr_yr",
+                 "Monthly Total Precip. (mm)" = 'PC_monthly_total'
                  )
 
 hourlyVarsDict <- list(
   "Air Temperature (\u00b0C)" = "Air_Temp",
   "Snow Depth (cm)" =  "Snow_Depth",
   "Accumulated SWE (mm)" =  "SWE",
-  "Accumulated Stand Pipe (mm)" =  "PC_accumulated_wtr_yr"
-  )
+  "Accumulated Precip. (mm)" =  "PC_accumulated_wtr_yr")
 
 pretty_stats_var_names_monthly <- list(
   "Air Temperature" = "Air_Temp",
   "Snow Depth" =  "Snow_Depth",
   "SWE" =  "SWE",
-  "Stand Pipe (monthly mean)" =  "PC_accumulated_wtr_yr",
-  "Stand Pipe (monthly total)" =  "PC_monthly_total"
-)
+  "Stand Pipe Accumulated" =  "PC_accumulated_wtr_yr",
+  "Stand Pipe Monthly Totals" =  "PC_monthly_total")
 
 pretty_stats_var_names_hourly <- list(
   "Air Temperature" = "Air_Temp",
   "Snow Depth" =  "Snow_Depth",
   "SWE" =  "SWE",
-  "Stand Pipe (monthly mean)" =  "PC_accumulated_wtr_yr",
-  "Stand Pipe (monthly total)" =  "PC_monthly_total"
-)
+  "Stand Pipe Accumulated" =  "PC_accumulated_wtr_yr")
 
 # imgs should be saved under the www/ folder
 logoPics <- list(

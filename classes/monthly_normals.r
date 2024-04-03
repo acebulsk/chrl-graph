@@ -57,10 +57,8 @@ observe({
   # need to find the year range of selected sites. finds the max of the two start years as the min.
   monthly_summary <- monthly_avg_df()
   # glob_avg <- globAverage()
-  min_year <- min(monthly_summary$WtrYr) |> as.numeric()
-  max_year <- max(monthly_summary$WtrYr) |> as.numeric()
-  year_range <- seq.int(min_year, max_year, by = 1)
-  updateSelectInput(session, "monthly_year", "Select Water Year to Compare: ", year_range, selected = max_year)
+  year_range <- monthly_summary$WtrYr |> unique()
+  updateSelectInput(session, "monthly_year", "Select Water Year to Compare: ", year_range, selected = max(year_range))
 }
   })
 
