@@ -85,11 +85,19 @@ observe({
 }
   })
 
+output$caption <- renderText({
+  min_year <- min(hourlyObsData()$wtr_year) |> as.numeric()
+  max_year <- max(hourlyObsData()$wtr_year) |> as.numeric()
+  caption <- paste0("Coloured lines for the selected water year(s) show the raw hourly observed data.\n The hourly statistics are calculated for each hour of the year, across water years: ", min_year, ' to ', max_year-1, '.')
+  return(caption)
+})
+
 output$hourly_stats_plot <- renderPlotly({
   req(input$hourly_site)
   req(input$hourly_year)
   
   select_year <- input$hourly_year
+  
   hourly_stats_df <- hourlyStatsData()
   validate(
     need(nrow(hourly_stats_df) > 0,
@@ -108,22 +116,8 @@ output$hourly_stats_plot <- renderPlotly({
   
   y_lab <- names(hourlyVarsDict)[hourlyVarsDict == input$hourly_var]
   
-  gg_out <- ggplot(hourly_obs_df)  +
-    geom_line(aes(
-      plot_time, value,
-      colour = as.factor(wtr_year),
-      group = as.factor(wtr_year),
-    ))+
-    scale_color_viridis_d(name = 'Water Year') +  # Assign colors based on the year
-    # scale_linetype_manual(name = 'Line Type', values = c("Mean" = "dashed", "Max" = "dashed", "Min" = "dashed")) +
-    scale_x_datetime(labels = scales::date_format("%B")) +
-    # scale_fill_manual(name = 'Fill', values = c('5th to 95th\npercentile' = 'grey')) +
-    labs(y = y_lab, colour = 'Water Year') +
-    theme_bw() +
-    theme(axis.title.x = element_blank(),
-          legend.position = 'bottom') #this doesnt appear to work
+  gg_out <- ggplot(hourly_obs_df) 
     
-  
  # browser()
   if("5-95 Percentile \nRange (green shading)" %in% input$hourly_stats_checkbox){
     gg_out <- gg_out +
@@ -135,7 +129,7 @@ output$hourly_stats_plot <- renderPlotly({
         ymax = upper_quantile,
         fill = '5th to 95th\npercentile'
       ),
-      alpha = 0.2,
+      alpha = 0.3,
       fill = 'lightgreen',
       colour = 'green'
     )# +
@@ -153,7 +147,7 @@ output$hourly_stats_plot <- renderPlotly({
           ymax = max,
           fill = 'Max to Min Range'
         ),
-        alpha = 0.2,
+        alpha = 0.3,
         fill = 'dodgerblue',
         colour = 'blue'
       ) #+
@@ -165,6 +159,21 @@ output$hourly_stats_plot <- renderPlotly({
     gg_out <- gg_out +
       geom_line(data = hourly_stats_df, aes(x = plot_time, y = mean, group = 1, linetype = 'Mean'))
   }
+  
+  gg_out <- gg_out +
+    geom_line(aes(
+      plot_time, value,
+      colour = as.factor(wtr_year),
+      group = as.factor(wtr_year),
+    ))+
+    scale_color_viridis_d(name = 'Water Year', end = 0.95) +  # Assign colors based on the year
+    # scale_linetype_manual(name = 'Line Type', values = c("Mean" = "dashed", "Max" = "dashed", "Min" = "dashed")) +
+    scale_x_datetime(labels = scales::date_format("%B")) +
+    # scale_fill_manual(name = 'Fill', values = c('5th to 95th\npercentile' = 'grey')) +
+    labs(y = y_lab, x = element_blank(), colour = 'Water Year')
+  theme_bw() +
+    theme(axis.title.x = element_blank(),
+          legend.position = 'bottom') #this doesnt appear to work
 
   plotly::ggplotly(gg_out)
 })

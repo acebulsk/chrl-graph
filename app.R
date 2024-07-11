@@ -376,7 +376,11 @@ ui <- function(request) {
                               ),
                               column(10,
                                      htmlOutput('header5'),
-                                     plotlyOutput('hourly_stats_plot', height = "40vh")
+                                     plotlyOutput('hourly_stats_plot', height = "40vh"),
+                                     tags$div(
+                                       textOutput("caption"),
+                                       style = "font-size: smaller; color: #555555;"
+                                     )
                               )
                             )
                     )

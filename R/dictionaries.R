@@ -55,11 +55,11 @@ varsDict <- list("DateTime" = "DateTime",
                  "Battery (V)" = "Batt")
 
 monthlyVarsDict <- list(
-                 "Average Air Temperature (\u00b0C)" = "Air_Temp",
-                 "Average Snow Depth (cm)" =  "Snow_Depth",
-                 "Average SWE (mm)" =  "SWE",
-                 "Monthly Mean Accumulated Precip. (mm)" =  "PC_accumulated_wtr_yr",
-                 "Monthly Total Precip. (mm)" = 'PC_monthly_total'
+                 "Air Temperature (\u00b0C)" = "Air_Temp",
+                 "Snow Depth (cm)" =  "Snow_Depth",
+                 "SWE (mm)" =  "SWE",
+                 "Accumulated Precip. (mm)" =  "PC_accumulated_wtr_yr",
+                 "Precip. Totals (mm)" = 'PC_monthly_total'
                  )
 
 hourlyVarsDict <- list(

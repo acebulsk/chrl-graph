@@ -95,10 +95,10 @@ output$plot <- renderPlot({
         geom_line(aes(month_name, value, colour = line_group, group = line_group)) +
         geom_point(aes(month_name, value, colour = line_group, group = line_group), size = 1) +
         geom_line(aes(x = month_name, y = stat_value, linetype = stat_name, group = stat_name), alpha = 0.8) +
-        scale_linetype_manual(values = c('dashed', 'longdash', 'dashed'), name = '') +
+        scale_linetype_manual(values = c('dotdash', 'longdash', 'dotdash'), name = '') +
         scale_color_viridis_d(name = '') +  # Assign colors based on the year
         labs(x = "Month", y = y_lab,
-             caption = paste0('Mean monthly values for water years: ', min_year, ' to ', max_year-1, '.\n Only includes months with > 90% of data.')) +
+             caption = paste0('Dashed lines represent monthly stats for water years: ', min_year, ' to ', max_year-1, '.\n Colour dots are monthly means for the selected year(s).\n Only includes months with > 90% of data.')) +
         theme_bw(base_size = 14) +
         theme(legend.position = 'bottom')
     } else {
@@ -107,7 +107,7 @@ output$plot <- renderPlot({
         geom_point(size = 0.5)+
         scale_color_viridis_d(name = '') +  # Assign colors based on the year
         labs(x = "Month", y = y_lab,
-             caption = paste0('Mean monthly values for water years: ', min_year, ' to ', max_year-1, '.\n Only includes months with > 90% of data.')) +
+             caption = paste0('Mean monthly values for the selected water year for months with > 90% of data.')) +
         theme_bw(base_size = 14) +
         theme(legend.position = 'bottom')
     }
@@ -124,7 +124,7 @@ output$plot <- renderPlot({
       geom_point(data = box_data_means, aes(colour = as.factor(WtrYr)), shape = 17, size = 3) +
       scale_color_viridis_d(name = 'Monthly Mean') +  # Assign colors based on the year
       labs(x = "Month", y = y_lab,
-           caption = paste0('Period of Record: ', min_year, ' to ', max_year-1, ". \nOnly includes months with > 90% of data."))  +
+           caption = paste0('Box plots represent monthly stats for water years: ', min_year, ' to ', max_year-1, ".\n Coloured triangles are monthly means for the selected year(s)./n Only includes months with > 90% of data."))  +
       theme_bw(base_size = 14) +
       theme(legend.position = 'bottom')
     
@@ -150,7 +150,7 @@ output$plot <- renderPlot({
       geom_bar(stat = "identity", position = "dodge") +
       scale_fill_viridis_d(name = '') +  # Assign colors based on the year
       labs(x = "Month", y = y_lab,
-           caption = paste0('Only includes months with > 90% of data. Red line shows the selected water year.')) +
+           caption = paste0('Bars represent monthly stats for water years: ', min_year, ' to ', max_year-1,'.\n Additional bars show the monthly mean for the selected water year(s).\n Only includes months with > 90% of data. Red line shows the selected water year.')) +
       theme_bw(base_size = 14) +
       theme(legend.position = 'bottom')
   }
@@ -184,6 +184,7 @@ output$monthly_stats_text <- renderDataTable({
       `Year of Min` = Min_yr,
       `Year of Max` = Max_yr
     ) |> 
+    mutate(across(`Monthly Mean of Select Year`:`% of Normal`, round, 2)) |> 
     arrange(`Water Year`,
             Month)
   

@@ -22,6 +22,10 @@ observe({
 
 # get available variables for selected station
 output$varSelection <- renderUI({
+  
+  # could switch to drop down select and use this which works in any order:
+  # var_names <- names(sort(factor(wx_var_list[wx_var_list %in% input$wx_var],
+  #                                levels = input$wx_var, ordered = T)))
   # get colnames from reactive dataset
   stnVars <- unname(unlist(station_meta[[input$custom_site]][6]))
   
