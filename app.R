@@ -11,6 +11,11 @@ library(dashboardthemes)
 library(weatherdash)
 library(fontawesome) #devtools::install_github("rstudio/fontawesome")
 
+# check if config.r file exists otherwise generate error
+if (!file.exists('config.r')) {
+  stop("Error: 'config.r' file does not exist. This file is not held on github for privacy reasons and must be provided by the database admin.")
+}
+
 # two colours
 two_cols <- c(
   rgb(204/255,51/255,17/255),

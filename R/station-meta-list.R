@@ -1,6 +1,11 @@
-## this is the code to create the station_meta list used across the website
-## for linking station metadata
+## This script creates a list of station objects/classes which define what
+## stations are available on the website. These objects/classes are held within
+## the station_meta list. To add a new station create a new station list object
+## within the station_meta list. Make sure to also add a new station to the
+## stnloc.csv as well.
 
+# many of the second generation FTS stations have repeating fields on the clean_
+# tables on the database
 sec_gen_FTS_params = c("Air_Temp",
                        "RH",
                        "BP",
